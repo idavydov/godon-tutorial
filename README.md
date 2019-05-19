@@ -148,3 +148,84 @@ By default Godon will try to use all the available CPUs, you can
 control it with `--procs N` argument. We use `--out-tree` to save the
 tree for further use.
 
+From the output you see that omega (ratio between non-synonymous and
+synonymous mutations) is very close to zero. This means that on
+average the gene is under purifying selection.
+
+Now let's run the same model in
+[PAML](http://abacus.gene.ucl.ac.uk/software/paml.html). For this we
+first need to create a `.ctl` file. In this case it would look like
+this:
+
+```
+     seqfile = EMGT00050000000025.Drosophila.001.phy * sequence data file name
+    treefile = EMGT00050000000025.Drosophila.001.nwk * tree structure file name
+     outfile = m0.mlc * main result file name
+
+       noisy = 1 * 0,1,2,3,9: how much rubbish on the screen
+     verbose = 0 * 1: detailed output, 0: concise output
+     runmode = 0 * 0: user tree; 1: semi-automatic; 2: automatic
+                 * 3: StepwiseAddition; (4,5):PerturbationNNI; -2: pairwise
+
+
+     seqtype = 1 * 1:codons; 2:AAs; 3:codons-->AAs
+   CodonFreq = 2 * 0:1/61 each, 1:F1X4, 2:F3X4, 3:codon table
+       ndata = 1
+       clock = 0 * 0:no clock, 1:clock; 2:local clock
+
+      aaDist = 0 * 0:equal, +:geometric; -:linear, 1-6:G1974,Miyata,c,p,v,a
+                 * 7:AAClasses
+
+       model = 0
+               * models for codons:
+                   * 0:one, 1:b, 2:2 or more dN/dS ratios for branches
+	       * models for AAs or codon-translated AAs:
+                   * 0:poisson, 1:proportional,2:Empirical,3:Empirical+F
+                   * 6:FromCodon, 8:REVaa_0, 9:REVaa(nr=189)
+
+     NSsites = 0 * 0:one w;1:neutral;2:selection; 3:discrete;4:freqs;
+                 * 5:gamma;6:2gamma;7:beta;8:beta&w;9:beta&gamma;
+                 * 10:beta&gamma+1; 11:beta&normal>1; 12:0&2normal>1;
+                 * 13:3normal>0
+
+       icode = 0 * 0:universal code; 1:mammalian mt; 2-11:see below
+       Mgene = 0 * 0:rates, 1:separate;
+
+   fix_kappa = 0 * 1: kappa fixed, 0: kappa to be estimated
+       kappa = 2 * initial or fixed kappa
+   fix_omega = 0 * 1: omega or omega_1 fixed, 0: estimate
+       omega = .4 * initial or fixed omega, for codons or codon-based AAs
+
+       getSE = 0 * 0: don't want them, 1: want S.E.s of estimates
+RateAncestor = 0 * (0,1,2): rates (alpha>0) or ancestral states (1 or 2)
+  Small_Diff = .5e-6
+   cleandata = 0 * remove sites with ambiguity data (1:yes, 0:no)?
+ fix_blength = 0 * 0: ignore, -1: random, 1: initial, 2: fixed
+      method = 0 * 0: simultaneous; 1: one branch at a time
+```
+
+Now let's run codeml, i.e. codon model optimization program from PAML:
+
+```
+$ codeml m0.ctl
+
+CODONML in paml version 4.9f, October 2017
+
+<lots of output>
+
+np =    20
+lnL0 = -61516.513165
+Out..
+lnL  = -48511.346805
+1243 lfun, 1243 eigenQcodon, 22374 P(t)
+end of tree file.
+
+Time used:  1:46
+```
+
+Codeml only know how to use a single CPU, that's part of the reason
+the analysis took longer. But as you see, maximum likelihood values
+are very similar.
+
+It is possible to have a shorter config file, see
+`paml/m0/m0_minimal.ctl`.
