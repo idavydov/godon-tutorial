@@ -1,0 +1,11 @@
+# temporary files
+\#*#
+.\#*
+*~
+
+# godon binary
+godon
+
+# generated files
+M0_tree.nwk
+*.mlc
