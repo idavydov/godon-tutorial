@@ -227,7 +227,7 @@ end of tree file.
 Time used:  1:46
 ```
 
-Codeml only know how to use a single CPU, that's part of the reason
+Codeml only knows how to use a single CPU, that's part of the reason
 the analysis took longer. But as you see, maximum likelihood values
 are very similar.
 
