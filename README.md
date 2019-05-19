@@ -1,5 +1,9 @@
 # Godon tutorial
 
+[Godon](https://bitbucket.org/Davydov/godon) is a software for codon
+model optimization written in Go. This is short demonstration of Godon
+features.
+
 ## Installing godon
 
 If you are using GNU/Linux, go to the
