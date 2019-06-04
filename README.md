@@ -241,3 +241,141 @@ are very similar.
 
 It is possible to have a shorter config file, see
 `paml/m0/m0_minimal.ctl`.
+
+
+## The M8
+The model [M8](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1461088/)
+is more flexible than M0 and allows omega (dN/dS) to vary over the
+sites of the sequence aligmnent. Omega rates can follow the [beta
+distribution](https://en.wikipedia.org/wiki/Beta_distribution), also a
+small subset of sites is allowed to evolve under positive selection
+(omega>1) or neutral evolution (omega=1). In the M8, positive
+selection strength for sites is not allowed to change between
+branches.
+
+To detect positive selection we need to run two models: M8 (model
+allowing for positive selection) and M8a (model allowing only for
+neutral evolution). We then use [likelihood-ratio
+test](https://en.wikipedia.org/wiki/Likelihood-ratio_test) to reject
+the null-hypothesis (that is M8a). Likelihood-ratio allows us to get
+a p-value.
+
+We can tell godon do fit both models in one run. Not only this is less
+code to type, but also this way godon detect likelihood
+underestimation and rerun optimization if needed.
+
+```
+$ ./godon test M8 --m0-tree EMGT00050000000025.Drosophila.001.fst EMGT00050000000025.Drosophila.001.nwk
+Tree is rooted. Will unroot.
+Optimizing branch lengths using M0
+Starting lnL=-55216.574
+Maximum likelihood: -48511.34704457653
+Running H0
+Starting lnL=-48129.156
+Maximum likelihood: -47500.40133746173
+Running H1
+Starting lnL=-50587.547
+Maximum likelihood: -47500.401334032475
+Starting with D=6.858506822027266e-06
+Rerunning H0, trying to reduce LR (D=6.858506822027266e-06)
+Starting lnL=-47500.401
+Maximum likelihood: -47500.401333194204
+Rerunning H1 because of negative LR (D=-1.6765407053753734e-06)
+Starting lnL=-47500.401
+Maximum likelihood: -47500.40133318673
+Final D=1.4944816939532757e-08
+lnL0=-47500.401333, lnL1=-47500.401333
+Running time: 1m43.597952792s
+```
+
+In this run godon estimated three models. First, it used M0 to
+estimate branch lengths. Then it estimated M8a (H0, null hypothesis)
+and M8 (H1, alternative hypothesis). In the final three lines we find
+D (the statistics of likelihood-ratio test), and both likelihoods. As
+D is close to zero, p-value is non-significant.
+
+## The branch-site model
+In the [branch-site model](https://doi.org/10.1093/molbev/msi237)
+omega can vary both between tree branches and between sites. This
+model is also more sensitive than M8 (see supplementary materials of
+[this paper](https://doi.org/10.1093/molbev/msz048)).
+
+When running the branch-site model you need to specify which branch or
+set of branches to test. It is often useful to test multiple
+branches. In this scenario we are going to test all non-leaf of the
+tree. The reason we exclude leaf branches is because a sequencing
+error can easily lead to a false positive in positive selection
+analysis.
+
+```
+ ./godon test BS --m0-tree --all-branches --no-leaves EMGT00050000000025.Drosophila.001.fst EMGT00050000000025.Drosophila.001.nwk
+<...>
+Testing branch 1/7
+Foreground branch: (((((a001,a002),a003),a004),(a005,a006))#1,a007,((a008,a009),a010));
+<...>
+Final D=14.945732179141487
+NEB analysis
+pos	codon	aa	p
+552	AAA	K	0.980
+1197	ACT	T	0.719
+1410	CAC	H	0.721
+1414	AGC	S	0.955
+2266	GTG	V	0.697
+2443	CAG	Q	0.981
+BEB analysis
+pos	codon	aa	p
+552	AAA	K	0.978
+1197	ACT	T	0.810
+1410	CAC	H	0.833
+1414	AGC	S	0.829
+2266	GTG	V	0.828
+2443	CAG	Q	0.924
+lnL0=-47910.976201, lnL1=-47903.503335
+Testing branch 2/7
+<...>
+Running time: 9m31.011400287s
+```
+
+In this output godon shows the branch it is testing (note `#1` in the
+tree). Since the value of D could be significant (D=14.9), godon
+performs posterior analysis to detect sites under positive selection
+(see [here](https://doi.org/10.1093/molbev/msi097)). Remember, you
+still need to compute p-value and [correct for multiple
+testing](https://en.wikipedia.org/wiki/Multiple_comparisons_problem). R-code
+computing p-value could look like this:
+
+```
+p.value <- pchisq(d, df=1, lower.tail=F)/2
+```
+
+Notice that there was no positive selection detect using M8, this is
+probably due to lower power of M8 in detecting positive selection
+compared to the branch-site model.
+
+## Codon gamma rate variation
+We recently [showed](https://doi.org/10.1093/molbev/msz048) that the
+assumption of constant synonymous rate could dramatically increase the
+proportion of false positives in positive selection analysis. Luckily,
+in godon it is very easy to enable codon gamma rate variation. Be
+aware, this mode is more computationally intensive.
+
+In this demonstration we will show how to use codon rate variation
+with M8. The same approach will work for the branch-site model.
+
+```
+./godon test M8 --m0-tree --ncat-codon-rate 4 EMGT00050000000025.Drosophila.001.fst EMGT00050000000025.Drosophila.001.nwk
+<...>
+Final D=0.00028724932053592056
+lnL0=-47412.211816, lnL1=-47412.211672
+Running time: 8m31.825944886s
+```
+
+In both models (M8 and M8+codon rate variation) no positive selection was detected.
+
+## Additional notes
+
+* It is easy to export results to a machine-readable form (JSON). Use
+  `--json` for this.
+* Here every time we first estimated branch lengths using M0. We could
+  do it only once and the reuse the tree. The tree can be exported
+  using `--out-tree` or `--json` export.
