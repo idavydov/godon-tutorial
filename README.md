@@ -80,6 +80,9 @@ Commands:
     Run test for positive selection
 ```
 
+There are also two commands in godon: `optimize` and `test`. To get
+help for specific commands use: `./godon command --help`.
+
 ## Gene sequence and a tree
 
 We will use Drosohpila gene
