@@ -88,9 +88,10 @@ orthologs from 12 Drosophila species. Vacuolar protein sorting 13
 (Vps13) encodes a protein located to endosomal membrane that is
 involved in protein homeostasis.
 
-They are already available in this repository. When creating your own
-files for analysis make sure to have identical sequence identifiers
-used in the tree and in the sequence alignment.
+The sequence aligmnent and the phylogenetic tree are already available
+in this repository. When creating your own files for analysis make
+sure to have identical sequence identifiers used in a tree and in a
+sequence alignment.
 
 There are a couple of caveats when analyzing your own sequence. First,
 make sure to provide a good-quality codon-based sequence
@@ -102,20 +103,23 @@ threshold. In
 [Selectome](https://selectome.unil.ch/cgi-bin/methods.cgi) the
 threshold is set to 0.93.
 
-Second, mask the selenocysteine-encoding codons, as they are not
-supported by majority of codon models. Finally, make sure to create a
-high-quality phylogenetic tree. E.g., using software such are
+Second, in certain species one of the stop codons could encode
+selenocystein (a non-standard amino acid). As selenocystein is not
+supported by majority of codon models, you need to mask this
+codon. Finally, make sure to create a high-quality phylogenetic
+tree. E.g., using software such are
 [PhyML](http://www.atgc-montpellier.fr/phyml/) or
 [RAxML](https://cme.h-its.org/exelixis/web/software/raxml/index.html),
-or software based on Bayesian approach. If branch support values are
-low, consider removing some sequences or trying multiple topologies,
-and choosing the most conservative estimates of positive selection.
+or a software package based on Bayesian approach. If branch support
+values are low, consider removing some sequences or trying multiple
+topologies, and choosing the most conservative estimates of positive
+selection.
 
-Also, it is important to keep in mind that branch-length estimates
-provided by software such as PhyML is expressed in the number of
-nucleotide substitutions per unit of pseudotime. In codon models the
-branch lengths are describing the number of codon substitutions. So it
-is important to allow Godon or other codon model software to estimate
+It is important to keep in mind that branch-length estimates provided
+by software such as PhyML is expressed in the number of nucleotide
+substitutions per unit of pseudotime. In codon models the branch
+lengths are describing the number of codon substitutions. So it is
+important to allow Godon or other codon model software to estimate
 branch lengths.
 
 ## The simplest model
@@ -131,9 +135,10 @@ detect an extremely strong positive selection affecting majority of
 the positions over long period of time. This model has a low
 computational cost, therefore it is frequently used to estimate branch
 lengths for the codon alignment. These branch lengths could be then
-used without further optimization for more complex codon models, to
-improve computational performance without compromising statistical
-properties too much (see supplementary materials of [this
+used without further optimization for more complex codon models. Usage
+of fixed branch length (estimated with M0) improve computational
+performance without compromising statistical properties too much (see
+supplementary materials of [this
 paper](https://doi.org/10.1093/molbev/msz048)).
 
 Now let's run the model:
