@@ -300,6 +300,17 @@ omega can vary both between tree branches and between sites. This
 model is also more sensitive than M8 (see supplementary materials of
 [this paper](https://doi.org/10.1093/molbev/msz048)).
 
+**Notice**: parametrization of the branch-site model is slightly
+different (but equivalent) to the one used in PAML. Instead of having
+`p0` and `p1` as parameters, godon uses `p01sum = p0 + p1` and
+`p0prop = p0 / (p0 + p1)`. There are two advanteges of this
+parametrization. First, this way both parameters have a predefined
+range `(0,1)`. Second, there is less dependency between the two.
+Both properties are useful when it comes to likelihood optimization
+or MCMC. It goes without saying that it is straightforward to go
+back to the classical parametrization whenever needed:
+`p0 = p01sum * p0prop` and `p1 = p01sum - p0`.
+
 When running the branch-site model you need to specify which branch or
 set of branches to test. It is often useful to test multiple
 branches. In this scenario we are going to test all non-leaf of the
